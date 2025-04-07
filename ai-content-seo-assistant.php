@@ -7,11 +7,13 @@
  */
 require_once __DIR__ . '/ai/ai_engine.php';
 
-// Add a button to the editor
-add_action('admin_footer', 'add_ai_button');
+// Add a button to the post editor
+add_action('edit_form_after_editor', 'add_ai_button');
 function add_ai_button() {
+    echo '<div style="margin-top: 10px;">';
     echo '<button id="ai-generate" style="margin: 10px; padding: 5px 10px; background: #0073aa; color: white; border: none;">Generate Content</button>';
     echo '<div id="ai-output" style="margin: 10px; padding: 10px; border: 1px solid #ddd;"></div>';
+    echo '</div>';
 }
 
 // Add script to handle button click
@@ -19,18 +21,21 @@ add_action('admin_enqueue_scripts', 'enqueue_ai_script');
 function enqueue_ai_script() {
     echo '<script>
         document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById("ai-generate").addEventListener("click", function() {
-                var content = document.getElementById("content") ? document.getElementById("content").value : "";
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "' . admin_url('admin-ajax.php') . '", true);
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        document.getElementById("ai-output").innerHTML = xhr.responseText;
-                    }
-                };
-                xhr.send("action=run_ai&content=" + encodeURIComponent(content));
-            });
+            var button = document.getElementById("ai-generate");
+            if (button) {
+                button.addEventListener("click", function() {
+                    var content = document.getElementById("content") ? document.getElementById("content").value : "";
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "' . admin_url('admin-ajax.php') . '", true);
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            document.getElementById("ai-output").innerHTML = xhr.responseText;
+                        }
+                    };
+                    xhr.send("action=run_ai&content=" + encodeURIComponent(content));
+                });
+            }
         });
     </script>';
 }
